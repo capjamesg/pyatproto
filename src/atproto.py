@@ -44,8 +44,8 @@ class AtProtoConfiguration:
         Authenticate with the ATP endpoint and return the auth token and DID.
         """
         user_token_request = requests.post(
-            self.endpoint + "com.atproto.session.create",
-            json={"handle": self.username, "password": self.password},
+            self.endpoint + "com.atproto.server.createSession",
+            json={"identifier": self.username, "password": self.password},
             headers={"Content-Type": "application/json"},
         )
 
@@ -103,20 +103,39 @@ class AtProtoConfiguration:
         )
 
         return response.json()
+    
+    def get_post(self, atp_uri: str) -> dict:
+        """
+        Get a post.
 
-    def get_user_timeline(self) -> dict:
+        :param atp_uri: The ATP URI of the post
+
+        :return: The post
+        :rtype: dict
+        """
+        response = requests.get(
+            self.endpoint + "app.bsky.feed.getPostThread?uri=" + atp_uri, headers=self.AUTH_HEADERS
+        )
+
+        return response.json()
+
+    def get_user_timeline(self, did = None) -> dict:
         """
         Get the timeline from a user's homepage.
 
         :return: The user timeline.
         :rtype: dict
         """
+
+        if not did:
+            did = self.did
+            
         response = requests.get(
-            self.endpoint + "app.bsky.feed.getTimeline?author=" + self.did, headers=self.AUTH_HEADERS
+            self.endpoint + "app.bsky.feed.getTimeline?author=" + did,
+            headers=self.AUTH_HEADERS
         )
 
         return response.json()
-
     def change_username_to_domain(self, domain):
         """
         Change the username to a domain.

@@ -12,6 +12,7 @@ SUPPORTED_METHODS = [
     "com.atproto.handle.change",
 ]
 
+
 class AtProtoConfiguration:
     """
     A class to hold the configuration for the AT Protocol.
@@ -50,6 +51,23 @@ class AtProtoConfiguration:
         )
 
         return user_token_request.json()["accessJwt"], user_token_request.json()["did"]
+
+    def get_followers(self, user=None) -> list:
+        """
+        Get the followers of a user.
+
+        :return: The list of followers
+        :rtype: list
+        """
+        if user is None:
+            user = self.username
+
+        response = requests.get(
+            self.endpoint + "app.bsky.graph.getFollowers?actor=" + user,
+            headers=self.AUTH_HEADERS,
+        )
+
+        return response.json()["followers"]
 
     def create_post(self, title):
         """
@@ -91,19 +109,23 @@ class AtProtoConfiguration:
             headers=self.AUTH_HEADERS,
         )
 
-    def get_user_feed(self) -> dict:
+    def get_user_feed(self, user) -> dict:
         """
         Get the feed of posts from a user.
 
         :return: The user feed
         :rtype: dict
         """
+        if user is None:
+            user = self.username
+
         response = requests.get(
-            self.endpoint + "app.bsky.feed.getAuthorFeed?author=" + self.did, headers=self.AUTH_HEADERS
+            self.endpoint + "app.bsky.feed.getAuthorFeed?actor=" + user,
+            headers=self.AUTH_HEADERS,
         )
 
         return response.json()
-    
+
     def get_post(self, atp_uri: str) -> dict:
         """
         Get a post.
@@ -114,12 +136,13 @@ class AtProtoConfiguration:
         :rtype: dict
         """
         response = requests.get(
-            self.endpoint + "app.bsky.feed.getPostThread?uri=" + atp_uri, headers=self.AUTH_HEADERS
+            self.endpoint + "app.bsky.feed.getPostThread?uri=" + atp_uri,
+            headers=self.AUTH_HEADERS,
         )
 
         return response.json()
 
-    def get_user_timeline(self, did = None) -> dict:
+    def get_user_timeline(self, did=None) -> dict:
         """
         Get the timeline from a user's homepage.
 
@@ -129,13 +152,14 @@ class AtProtoConfiguration:
 
         if not did:
             did = self.did
-            
+
         response = requests.get(
             self.endpoint + "app.bsky.feed.getTimeline?author=" + did,
-            headers=self.AUTH_HEADERS
+            headers=self.AUTH_HEADERS,
         )
 
         return response.json()
+
     def change_username_to_domain(self, domain):
         """
         Change the username to a domain.
@@ -161,6 +185,16 @@ class AtProtoConfiguration:
             raise Exception("Server error. Could not change username to domain.")
 
         self.username = domain
+
+    def username_to_did(self, username):
+        """
+        Get the DID associated with a username.
+        """
+        response = requests.get(
+            self.endpoint + "com.atproto.identity.resolveHandle?handle=" + username
+        )
+
+        return response.json()["did"]
 
 
 def get_handle_did(endpoint, handle):
@@ -210,6 +244,7 @@ def hentry_to_atproto_post(post_url: str, server_config: AtProtoConfiguration) -
         raise Exception("No post title found.")
 
     server_config.create_post(post_body)
+
 
 def is_supported_method(method: str) -> bool:
     """

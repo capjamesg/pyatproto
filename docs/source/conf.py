@@ -7,16 +7,15 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 import os
+import sys
 
 project = "pyatproto"
 copyright = "2023, capjamesg"
 author = "capjamesg"
 release = "0.1.0"
+version = "0.1.0"
 
 sys.path.insert(0, os.path.abspath("../../src/"))
-
-release = "0.8.0"
-version = "0.8.0"
 
 # -- General configuration
 

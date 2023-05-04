@@ -20,6 +20,28 @@ class AtProtoConfiguration:
     :param endpoint: Your ATP endpoint
     :param username: The username for your ATP account
     :param password: The password for your ATP account
+
+    Example:
+
+    .. code-block:: python
+
+        import pyatproto
+        import os
+
+        ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
+        USERNAME = os.environ.get("ATPROTO_USERNAME")
+        PASSWORD = os.environ.get("ATPROTO_PASSWORD")
+
+        if not ENDPOINT or not USERNAME or not PASSWORD:
+            raise ValueError(
+                "Please set the ATPROTO_ENDPOINT, ATPROTO_USERNAME and ATPROTO_PASSWORD environment variables."
+            )
+
+        ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+        create_post = ap.create_post("My First Post")
+
+        print(create_post)
     """
 
     def __init__(self, endpoint, username, password):
@@ -30,7 +52,7 @@ class AtProtoConfiguration:
         self.username = username
         self.password = password
 
-        auth_token, did = self.authenticate()
+        auth_token, did = self._authenticate()
 
         self.auth_token = auth_token
         self.did = did
@@ -40,7 +62,7 @@ class AtProtoConfiguration:
             "Content-Type": "application/json",
         }
 
-    def authenticate(self) -> str:
+    def _authenticate(self) -> str:
         """
         Authenticate with the ATP endpoint and return the auth token and DID.
         """
@@ -58,6 +80,23 @@ class AtProtoConfiguration:
 
         :return: The list of followers
         :rtype: list
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+            import os
+
+            ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
+            USERNAME = os.environ.get("ATPROTO_USERNAME")
+            PASSWORD = os.environ.get("ATPROTO_PASSWORD")
+
+            ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            followers = ap.get_followers()
+            
+            print(followers)
         """
         if user is None:
             user = self.username
@@ -76,6 +115,23 @@ class AtProtoConfiguration:
         :param title: The title of the post
 
         :return: The rkey of the post
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+            import os
+
+            ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
+            USERNAME = os.environ.get("ATPROTO_USERNAME")
+            PASSWORD = os.environ.get("ATPROTO_PASSWORD")
+
+            ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            create_post = ap.create_post("My First Post")
+
+            print(create_post)
         """
         iso_time = datetime.datetime.utcnow().isoformat()
 
@@ -98,6 +154,21 @@ class AtProtoConfiguration:
         Delete a post.
 
         :param rkey: The rkey of the post to delete
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+            import os
+
+            ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
+            USERNAME = os.environ.get("ATPROTO_USERNAME")
+            PASSWORD = os.environ.get("ATPROTO_PASSWORD")
+
+            ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            ap.delete_post("rkey")
         """
         requests.post(
             self.endpoint + "com.atproto.repo.deleteRecord",
@@ -115,6 +186,29 @@ class AtProtoConfiguration:
 
         :return: The user feed
         :rtype: dict
+
+        Example:
+
+        .. code-block:: python
+
+
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+            import os
+
+            ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
+            USERNAME = os.environ.get("ATPROTO_USERNAME")
+            PASSWORD = os.environ.get("ATPROTO_PASSWORD")
+
+            ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            user_feed = ap.get_user_feed()
+
+            print(user_feed)
         """
         if user is None:
             user = self.username
@@ -131,9 +225,20 @@ class AtProtoConfiguration:
         Get a post.
 
         :param atp_uri: The ATP URI of the post
-
         :return: The post
         :rtype: dict
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+
+            ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            post = ap.get_post("atp://rkey")
+
+            print(post)
         """
         response = requests.get(
             self.endpoint + "app.bsky.feed.getPostThread?uri=" + atp_uri,
@@ -148,6 +253,18 @@ class AtProtoConfiguration:
 
         :return: The user timeline.
         :rtype: dict
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+
+            ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            user_timeline = ap.get_user_timeline()
+
+            print(user_timeline)
         """
 
         if not did:
@@ -165,6 +282,16 @@ class AtProtoConfiguration:
         Change the username to a domain.
 
         :param domain: The domain to change to
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+
+            ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            ap.change_username_to_domain("example.com")
         """
 
         answers = dns.resolver.query("_atproto." + domain, "TXT")
@@ -186,22 +313,27 @@ class AtProtoConfiguration:
 
         self.username = domain
 
-    def username_to_did(self, username):
-        """
-        Get the DID associated with a username.
-        """
-        response = requests.get(
-            self.endpoint + "com.atproto.identity.resolveHandle?handle=" + username
-        )
-
-        return response.json()["did"]
-
-
-def get_handle_did(endpoint, handle):
+def username_to_did(endpoint, username):
     """
-    Retrieve the DID associated with a handle.
+    Get the DID associated with a username.
+
+    :param endpoint: The ATP endpoint to use
+    :param username: The username to get the DID of
+    :return: The DID associated with the username
+
+    Example:
+
+    .. code-block:: python
+
+        import pyatproto
+
+        did = pyatproto.username_to_did(ENDPOINT, "username")
+
+        print(did)
     """
-    response = requests.get(endpoint + "com.atproto.handle.resolve?handle=" + handle)
+    response = requests.get(
+        endpoint + "com.atproto.identity.resolveHandle?handle=" + username
+    )
 
     return response.json()["did"]
 
@@ -214,6 +346,16 @@ def hentry_to_atproto_post(post_url: str, server_config: AtProtoConfiguration) -
     :param server_config: The configuration for the ATP server
 
     :raises Exception: If no h-entry is found
+
+    Example:
+
+    .. code-block:: python
+
+        import pyatproto
+
+        ap = pyatproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+        pyatproto.hentry_to_atproto_post("https://example.com/post", ap)
     """
 
     parsed_tree = mf2py.parse(post_url)
@@ -248,11 +390,19 @@ def hentry_to_atproto_post(post_url: str, server_config: AtProtoConfiguration) -
 
 def is_supported_method(method: str) -> bool:
     """
-    Check if a method is supported by the ATP server.
+    Check if a method is supported by this library.
 
     :param method: The method to check
 
     :return: Whether the method is supported
     :rtype: bool
+
+    Example:
+
+    .. code-block:: python
+
+        import pyatproto
+
+        print(pyatproto.is_supported_method("com.atproto.handle.change"))
     """
     return method in SUPPORTED_METHODS

@@ -95,7 +95,7 @@ class AtProtoConfiguration:
             ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
 
             followers = ap.get_followers()
-            
+
             print(followers)
         """
         if user is None:
@@ -108,7 +108,7 @@ class AtProtoConfiguration:
 
         return response.json()["followers"]
 
-    def create_post(self, title):
+    def create_post(self, title, reply_id=None, cid=None, url=None, thumbnail=None):
         """
         Create a post.
 
@@ -135,17 +135,24 @@ class AtProtoConfiguration:
         """
         iso_time = datetime.datetime.utcnow().isoformat()
 
+        if reply_id:
+            record = {
+                "text": title,
+                "createdAt": iso_time,
+                "reply": {"root": {"uri": reply_id, "cid": cid}, "parent": {"uri": reply_id, "cid": cid}},
+            }
+        else:
+            record = {"text": title, "createdAt": iso_time}
+
+        if url:
+            record["embed"] = {"$type": "app.bsky.embed.external", "external": {"uri": url, "title": "Thread rollup", "description": ""}}
+
         response = requests.post(
             self.endpoint + "com.atproto.repo.createRecord",
-            json={
-                "did": self.did,
-                "collection": "app.bsky.feed.post",
-                "validate": True,
-                "record": {"text": title, "createdAt": iso_time},
-            },
+            json={"repo": self.did, "collection": "app.bsky.feed.post", "validate": True, "record": record},
             headers=self.AUTH_HEADERS,
         )
-        rkey = response.json()["cid"]
+        rkey = response.json()
 
         return rkey
 
@@ -219,6 +226,32 @@ class AtProtoConfiguration:
         )
 
         return response.json()
+
+    def get_notifications(self) -> dict:
+        """
+        Get notifications.
+
+        :return: The notifications
+        :rtype: dict
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+
+            ap = pyatproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            notifications = ap.get_notifications()
+
+            print(notifications)
+        """
+        response = requests.get(
+            self.endpoint + "app.bsky.notification.listNotifications",
+            headers=self.AUTH_HEADERS,
+        )
+
+        return response.json()["notifications"]
 
     def get_post(self, atp_uri: str) -> dict:
         """
@@ -313,6 +346,7 @@ class AtProtoConfiguration:
 
         self.username = domain
 
+
 def username_to_did(endpoint, username):
     """
     Get the DID associated with a username.
@@ -331,9 +365,7 @@ def username_to_did(endpoint, username):
 
         print(did)
     """
-    response = requests.get(
-        endpoint + "com.atproto.identity.resolveHandle?handle=" + username
-    )
+    response = requests.get(endpoint + "com.atproto.identity.resolveHandle?handle=" + username)
 
     return response.json()["did"]
 

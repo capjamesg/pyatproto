@@ -16,6 +16,7 @@ release = "0.1.0"
 version = "0.1.0"
 
 sys.path.insert(0, os.path.abspath("../../src/"))
+print(sys.path)
 
 # -- General configuration
 

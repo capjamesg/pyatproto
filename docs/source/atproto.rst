@@ -41,12 +41,12 @@ Get a Post
 Get Posts a User Has Liked
 --------------------------
 
-.. autofunction:: pyatproto.AtProtoConfiguration.get_posts_user_liked
+.. autofunction:: pyatproto.AtProtoConfiguration.get_likes
 
 List Users a User Follows
 -------------------------
 
-.. autofunction:: pyatproto.AtProtoConfiguration.list_users_user_follows
+.. autofunction:: pyatproto.AtProtoConfiguration.get_following
 
 Get User Timeline
 -----------------

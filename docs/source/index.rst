@@ -14,5 +14,4 @@ To install pyatproto, run:
    :caption: Contents:
 
    atproto
-   did
    hentry

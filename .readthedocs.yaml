@@ -1,0 +1,24 @@
+version: 2
+
+# Set the version of Python and other tools you might need
+build:
+  os: ubuntu-20.04
+  tools:
+    python: "3.9"
+    
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+   configuration: docs/source/conf.py
+
+# Trigger failure if there is a Sphinx warning
+# sphinx:
+#   fail_on_warning: true
+  
+formats:
+  - pdf
+  - epub
+
+# install dependencies in requirements.txt file
+python:
+  install:
+    - requirements: docs/requirements.txt

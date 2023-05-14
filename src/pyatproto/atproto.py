@@ -1,15 +1,22 @@
 import datetime
 
-import dns.resolver
+# import dns.resolver
 import mf2py
 import requests
 
 SUPPORTED_METHODS = [
-    "com.atproto.session.create",
+    "com.atproto.server.createSession",
+    "app.bsky.feed.getFollowers",
     "com.atproto.repo.createRecord",
     "com.atproto.repo.deleteRecord",
-    "com.atproto.repo.getAuthorFeed",
+    "app.bsky.feed.getAuthorFeed",
+    "app.bsky.notification.listNotifications",
+    "app.bsky.feed.getPostThread",
+    "com.atproto.repo.listRecords?collection=app.bsky.feed.like",
+    "com.atproto.repo.listRecords?collection=app.bsky.graph.follow",
+    "app.bsky.feed.getTimeline",
     "com.atproto.handle.change",
+    "com.atproto.identity.resolveHandle",
 ]
 
 
@@ -198,12 +205,6 @@ class AtProtoConfiguration:
 
         .. code-block:: python
 
-
-
-        Example:
-
-        .. code-block:: python
-
             import pyatproto
             import os
 
@@ -275,6 +276,64 @@ class AtProtoConfiguration:
         """
         response = requests.get(
             self.endpoint + "app.bsky.feed.getPostThread?uri=" + atp_uri,
+            headers=self.AUTH_HEADERS,
+        )
+
+        return response.json()
+    
+    def get_likes(self, user=None) -> dict:
+        """
+        Get the likes of a user.
+
+        :return: The likes
+        :rtype: dict
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+
+            ap = pyatproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            likes = ap.get_likes()
+
+            print(likes)
+        """
+        if user is None:
+            user = self.did
+
+        response = requests.get(
+            self.endpoint + "com.atproto.repo.listRecords?repo=" + user + "&collection=app.bsky.feed.like",
+            headers=self.AUTH_HEADERS,
+        )
+
+        return response.json()
+    
+    def get_following(self, user=None) -> dict:
+        """
+        Get the following of a user.
+
+        :return: The following
+        :rtype: dict
+
+        Example:
+
+        .. code-block:: python
+
+            import pyatproto
+
+            ap = pyatproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
+
+            following = ap.get_following()
+
+            print(following)
+        """
+        if user is None:
+            user = self.did
+
+        response = requests.get(
+            self.endpoint + "com.atproto.repo.listRecords?repo=" + user + "&collection=app.bsky.graph.follow",
             headers=self.AUTH_HEADERS,
         )
 

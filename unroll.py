@@ -1,7 +1,6 @@
 import os
 
 import src.pyatproto as atproto
-import requests
 
 ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
 USERNAME = os.environ.get("ATPROTO_USERNAME")
@@ -12,26 +11,29 @@ if not ENDPOINT or not USERNAME or not PASSWORD:
 
 ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
 
-with open("sent.txt", "r") as f:
+HOME_DIR = "/home/james/pyatproto/"
+
+with open(HOME_DIR + "sent.txt", "r") as f:
     sent = f.read().split("\n")
 
 notifications = ap.get_notifications()
 
-thumbnail = requests.get("https://bsky.app/img/default-social-card.png")
+def get_top_parent(uri, author):
+    post = ap.get_post(uri)
+    if post["thread"].get("parent") is None:
+        return uri, post["thread"]["post"]["author"]["handle"]
+    else:
+        return get_top_parent(post["thread"]["parent"]["post"]["uri"], None)
 
-# get as blob
-thumbnail = thumbnail.content
 
 for notification in notifications:
-    author = notification["author"]["handle"]
-
     post_uri = notification["uri"]
     post_cid = notification["cid"]
 
     if notification["record"].get("reply") is None:
         continue
 
-    uri = notification["record"]["reply"]["parent"]["uri"]
+    uri, author = get_top_parent(notification["record"]["reply"]["parent"]["uri"], None)
     
     post_id = uri.split("/")[-1]
 
@@ -46,5 +48,5 @@ for notification in notifications:
 
     ap.create_post(f"Hey! Here is your rolled up thread!", post_uri, post_cid, url=roll_up)
 
-    with open("sent.txt", "a") as f:
+    with open(HOME_DIR + "sent.txt", "a") as f:
         f.write(post_id + "\n")

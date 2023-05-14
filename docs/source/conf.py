@@ -12,11 +12,10 @@ import sys
 project = "pyatproto"
 copyright = "2023, capjamesg"
 author = "capjamesg"
-release = "0.1.0"
-version = "0.1.0"
+release = "0.2.0"
+version = "0.2.0"
 
 sys.path.insert(0, os.path.abspath("../../src/"))
-print(sys.path)
 
 # -- General configuration
 

@@ -1,6 +1,8 @@
 # AT Protocol Python Library
 
-A wrapper for interacting with the [AT Protocol API](https://atproto.com/).
+A wrapper for interacting with the [AT Protocol API](https://atproto.com/), specifically for the [Bluesky](https://bsky.app/) social network.
+
+*Note: There are some hard-coded Bluesky method names in this library, so the current version will not work with other AT Protocol implementations. The plan is to change this as new servers become available.*
 
 ## Getting Started
 
@@ -13,7 +15,7 @@ pip install pyatproto
 ## Quickstart
 
 ```
-import atproto
+import pyatproto as atproto
 import os
 
 ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
@@ -26,6 +28,12 @@ create_post = ap.create_post("My First Post")
 
 print(create_post)
 ```
+
+## Example Scripts
+
+- [quickstart.py](quickstart.py): Authenticate and create a post on Bluesky.
+- [crawler.py](crawler.py): Find the messages posted by each person a user follows, recursively (rate limits prevent this being used for crawling the whole network without adjusting the logic, however).
+- [unroll.py](unroll.py): Find the parent of a message for use with the [bsky.link](https://bsky.link) thread unrolling feature.
 
 ## Contributing
 

@@ -1,6 +1,6 @@
 import os
 
-import src.pyatproto as atproto
+import pyatproto as atproto
 
 ENDPOINT = os.environ.get("ATPROTO_ENDPOINT")
 USERNAME = os.environ.get("ATPROTO_USERNAME")

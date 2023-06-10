@@ -34,25 +34,25 @@ ap = atproto.AtProtoConfiguration(ENDPOINT, USERNAME, PASSWORD)
 
 ### create a post
 
-```
+```python
 create_post = ap.create_post("My First Post")
 ```
 
 ### list followers
 
-```
+```python
 followers = ap.get_followers() # add user = username to get followers for another user
 ```
 
 ### get user feed
 
-```
+```python
 feed = ap.get_user_feed(user=ap.username)
 ```
 
 ### get notifications
 
-```
+```python
 notifications = ap.get_notifications()
 ```
 

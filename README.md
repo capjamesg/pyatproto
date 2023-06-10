@@ -1,5 +1,10 @@
 # AT Protocol Python Library
 
+[![version](https://badge.fury.io/py/pyatproto.svg)](https://badge.fury.io/py/pyatproto)
+[![downloads](https://img.shields.io/pypi/dm/pyatproto)](https://pypistats.org/packages/pyatproto)
+[![license](https://img.shields.io/pypi/l/pyatproto)](https://github.com/capjamesg/pyatproto/blob/main/LICENSE)
+[![python-version](https://img.shields.io/pypi/pyversions/pyatproto)](https://badge.fury.io/py/pyatproto)
+
 A wrapper for interacting with the [AT Protocol API](https://atproto.com/), specifically for the [Bluesky](https://bsky.app/) social network.
 
 *Note: There are some hard-coded Bluesky method names in this library, so the current version will not work with other AT Protocol implementations. The plan is to change this as new servers become available.*

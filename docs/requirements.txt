@@ -1,7 +1,7 @@
 beautifulsoup4==4.12.2
 certifi==2023.7.22
 charset-normalizer==3.1.0
-dnspython==2.1.0
+dnspython==2.6.1
 html5lib==1.1
 idna==3.4
 mf2py==1.1.2
